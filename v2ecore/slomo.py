@@ -25,6 +25,8 @@ from PIL import Image
 import logging
 import atexit
 import warnings
+import torch.serialization
+import datetime
 
 warnings.filterwarnings(
     "ignore", category=UserWarning,
@@ -221,8 +223,8 @@ class SuperSloMo(object):
 
         # dict1 = torch.load(self.checkpoint, map_location='cpu')
         # fails intermittently on windows
-
-        dict1 = torch.load(self.checkpoint, map_location=self.device)
+        with torch.serialization.safe_globals([datetime.datetime]):
+            dict1 = torch.load(self.checkpoint, map_location=self.device)
         interpolator.load_state_dict(dict1['state_dictAT'])
         flow_estimator.load_state_dict(dict1['state_dictFC'])
 
